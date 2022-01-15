@@ -1,17 +1,14 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
-import numpy as np
 import requests
 from bs4 import BeautifulSoup
-
+import constants as const
 
 def get_schedule():
     data = []
-    url = 'https://www.toki.co.jp/purchasing/TLIHTML.files/sheet001.htm'
-    path = './data/'
 
     print("Grab schedule...")
-    soup = BeautifulSoup(requests.get(url).text, 'html.parser')
+    soup = BeautifulSoup(requests.get(const.URL).text, 'html.parser')
 
     print("Extract data...")
     html_data = soup.find_all("table")[0].find_all("tr")[1:]
@@ -46,7 +43,7 @@ def get_schedule():
     df = df.replace(regex=r'^EX.$', value='EX-SPH-CL')
 
     print("Saving to disk...")
-    writer = pd.ExcelWriter(path + '_schedule.xlsx', engine='xlsxwriter')
+    writer = pd.ExcelWriter(const.DATAPATH + '_schedule.xlsx', engine='xlsxwriter')
     df.to_excel(writer, sheet_name='Sheet1', index=False)
     writer.save()
     print("Finished!")
