@@ -7,11 +7,49 @@ from bs4 import BeautifulSoup
 import constants as const
 
 
-def get_webpage():
+class Schedule:
+
+    def __init__(self):
+        self.valid = False
+        self.__schedule = build()
+        self.length = len(self.__schedule)
+        keys = list(self.__schedule.keys())
+        self.width = 3  # len(keys[0])
+
+    def get_row(self, key):
+        return self.__schedule.get(key)
+
+    def has_key(self, key):
+        return key in list(self.__schedule.keys())
+
+    def add(self, key, value):
+        pass
+
+    def replace(self, key, value):
+        pass
+
+    def accumulate(self, key, value):
+        pass
+
+    def display(self):
+        print("Shape: {}x{}".format(self.length, self.width))
+        print(self.__schedule)
+
+
+def build():
+    return schedule_builder()
+
+
+def tranlate():
     pass
 
 
-def get_schedule():
+def schedule_builder():
+    t = get_table()
+    return t
+
+
+def get_table():
     # get page, parse content, get all <td> elements
     page = requests.get(const.URL)
     soup = BeautifulSoup(page.content, 'html.parser')
@@ -60,14 +98,15 @@ def get_schedule():
         line = line[:1] + line[5:]
         table.append(line)
 
-    # get table header
-    # header = table[0]
-
     # convert quantites to float values
     for i in range(1, num_lines):
         for j in range(1, num_dates + 1):
             table[i][j] = float(table[i][j])
 
+    return table
+
+
+def validate():
     # validate part numbers
     v = pd.read_csv(const.DATAPATH + const.VALIDATE)
     validate = {}
@@ -80,7 +119,7 @@ def get_schedule():
         parts.append(d.iloc[i][0])
 
     # check schedule parts against inventory parts
-    validated = True;
+    validated = True
     for i in range(1, num_lines):
         current = table[i][0]
         if current not in parts:
@@ -92,7 +131,7 @@ def get_schedule():
                 validated = False
     if not validated:
         print("Errors occurred while validating the schedule.")
-        sys.exit(1)
+        # sys.exit(1)
 
     # translate values
 
@@ -104,3 +143,4 @@ def get_schedule():
         for j in range(1, num_dates + 1):
             values.append(table[i][j])
         schedule[key] = values
+    return schedule

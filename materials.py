@@ -19,7 +19,9 @@ def build_report():
 
 
 def run():
-    sch.get_schedule()
+    schedule = sch.Schedule()
+    schedule.display()
+    print("Validated: {}".format(schedule.valid))
 
 
 if __name__ == "__main__":
