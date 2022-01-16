@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
+import sys
+
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 import constants as const
+
+
+def get_webpage():
+    pass
 
 
 def get_schedule():
@@ -32,6 +38,7 @@ def get_schedule():
         if data[first_date] == "":
             first_date += 1
             break
+
     # calculate number of shipping dates and width of table
     num_dates = first_line - first_date
     line_length = num_dates + const.SCHEDULE_WIDTH
@@ -54,7 +61,7 @@ def get_schedule():
         table.append(line)
 
     # get table header
-    header = table[0]
+    # header = table[0]
 
     # convert quantites to float values
     for i in range(1, num_lines):
@@ -62,19 +69,32 @@ def get_schedule():
             table[i][j] = float(table[i][j])
 
     # validate part numbers
-    v = pd.read_csv(const.DATAPATH + const.VALIDATE, sep=',', lineterminator='\r')
-    v.replace(to_replace=[r"\\t|\\n|\\r", "\t|\n|\r"], value=["", ""], regex=True, inplace=True)
+    v = pd.read_csv(const.DATAPATH + const.VALIDATE)
     validate = {}
     for i in range(0, len(v.index)):
         validate[v.iloc[i][0]] = v.loc[i][1]
-    print(validate)
 
-    d = pd.read_csv(const.DATAPATH + const.DATA, sep=',', lineterminator='\r')
-    # file.replace(to_replace=[r"\\t|\\n|\\r", "\t|\n|\r"], value=["", ""], regex=True, inplace=True)
+    d = pd.read_csv(const.DATAPATH + const.DATA)
     parts = []
     for i in range(0, len(d.index)):
         parts.append(d.iloc[i][0])
-    print(parts)
+
+    # check schedule parts against inventory parts
+    validated = True;
+    for i in range(1, num_lines):
+        current = table[i][0]
+        if current not in parts:
+            # print("{} not found in inventory.".format(current))
+            if current in validate:
+                table[i][0] = validate.get(current)
+            else:
+                print("{} not found.".format(current))
+                validated = False
+    if not validated:
+        print("Errors occurred while validating the schedule.")
+        sys.exit(1)
+
+    # translate values
 
     # create dictionary from table
     schedule = {}
@@ -84,7 +104,3 @@ def get_schedule():
         for j in range(1, num_dates + 1):
             values.append(table[i][j])
         schedule[key] = values
-
-    # translate values
-
-    print(schedule)
