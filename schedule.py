@@ -56,12 +56,25 @@ def get_schedule():
     # get table header
     header = table[0]
 
-    # convert quantites to int values
+    # convert quantites to float values
     for i in range(1, num_lines):
         for j in range(1, num_dates + 1):
-            table[i][j] = int(table[i][j])
+            table[i][j] = float(table[i][j])
 
     # validate part numbers
+    v = pd.read_csv(const.DATAPATH + const.VALIDATE, sep=',', lineterminator='\r')
+    v.replace(to_replace=[r"\\t|\\n|\\r", "\t|\n|\r"], value=["", ""], regex=True, inplace=True)
+    validate = {}
+    for i in range(0, len(v.index)):
+        validate[v.iloc[i][0]] = v.loc[i][1]
+    print(validate)
+
+    d = pd.read_csv(const.DATAPATH + const.DATA, sep=',', lineterminator='\r')
+    # file.replace(to_replace=[r"\\t|\\n|\\r", "\t|\n|\r"], value=["", ""], regex=True, inplace=True)
+    parts = []
+    for i in range(0, len(d.index)):
+        parts.append(d.iloc[i][0])
+    print(parts)
 
     # create dictionary from table
     schedule = {}
@@ -71,5 +84,7 @@ def get_schedule():
         for j in range(1, num_dates + 1):
             values.append(table[i][j])
         schedule[key] = values
+
+    # translate values
 
     print(schedule)
