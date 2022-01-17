@@ -1,28 +1,23 @@
 # -*- coding: utf-8 -*-
-import pandas as pd
-import requests
-from bs4 import BeautifulSoup
-import constants as const
+import inventory
 import schedule as sch
-
-
-def get_backlog():
-    pass
-
-
-def get_inventory():
-    pass
-
-
-def build_report():
-    pass
+import sales
+import report
+import constants as const
 
 
 def run():
+    data = inventory.Inventory()
+    data.display()
     schedule = sch.Schedule()
     schedule.display()
-    print(schedule.get_row("FLWG-310-HM"))
-    print(schedule.valid_key("EX-CNT"))
+    bl = sales.SalesData(const.BACKLOG)
+    bl.display()
+    hfr = sales.SalesData(const.HOLD_FOR_RELEASE)
+    hfr.display()
+    materials = report.Materials(data, schedule, bl, hfr)
+    materials.save()
+    print("Finished!")
 
 
 if __name__ == "__main__":

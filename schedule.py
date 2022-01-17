@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import sys
-
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
@@ -9,22 +8,23 @@ import constants as const
 
 class Schedule:
     def __init__(self):
-        self.__schedule, self.header = build()
-        self.length = len(self.__schedule)
-        keys = list(self.__schedule.keys())
+        self.schedule, self.header = build()
+        self.header.remove("TOKISTAR CODE")
+        self.length = len(self.schedule)
+        keys = list(self.schedule.keys())
         key = keys[0]
-        values = self.__schedule[key]
+        values = self.schedule[key]
         self.width = len(values)
 
     def get_row(self, key):
-        return self.__schedule.get(key)
+        return self.schedule.get(key)
 
     def valid_key(self, key):
-        return key in list(self.__schedule.keys())
+        return key in list(self.schedule.keys())
 
     def display(self):
-        print("Shape: {}x{}".format(self.length, self.width))
-        print("Header: {}".format(self.header))
+        print("Schedule has {} unique items and {} shipping dates.".format(self.length, self.width))
+        print("Shipping Dates: {}".format(self.header))
 
 
 def build():
@@ -96,7 +96,7 @@ def validate_table(table):
     v = pd.read_csv(const.DATAPATH + const.VALIDATE)
     for i in range(0, len(v.index)):
         validate[v.iloc[i][0]] = v.iloc[i][1]
-    d = pd.read_csv(const.DATAPATH + const.DATA)
+    d = pd.read_csv(const.DATAPATH + const.INVENTORY)
     parts = []
     for i in range(0, len(d.index)):
         parts.append(d.iloc[i][0])
@@ -104,8 +104,8 @@ def validate_table(table):
     validated = True
     for i in range(1, len(table)):
         current = table[i][0]
+        current = check_specials(current)
         if current not in parts:
-            # print("{} not found in inventory.".format(current))
             if current in validate:
                 table[i][0] = validate.get(current)
             else:
@@ -113,8 +113,28 @@ def validate_table(table):
                 validated = False
     if not validated:
         print("Errors occurred while validating the schedule.")
-        # sys.exit(1)
+        sys.exit(1)
     return table
+
+
+def check_specials(current):
+    if "RV-SEALANT" in current:
+        current = "RV-SEALANT"
+    elif "Sample" in current:
+        current = "Sample"
+    elif "EX-SPH-CL" in current:
+        current = "EX-SPH-CL"
+    elif "EX-SPH-FR" in current:
+        current = "EX-SPH-FR"
+    elif "EX-G14-CL" in current:
+        current = "EX-G14-CL"
+    elif "EX-G14-FR" in current:
+        current = "EX-G14-FR"
+    elif "EX-S14-CL" in current:
+        current = "EX-S14-CL"
+    elif "EX-S14-FR" in current:
+        current = "EX-S14-FR"
+    return current
 
 
 def translate_table(table):
