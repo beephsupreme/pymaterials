@@ -21,7 +21,8 @@ def build_report():
 def run():
     schedule = sch.Schedule()
     schedule.display()
-    print("Validated: {}".format(schedule.valid))
+    print(schedule.get_row("FLWG-310-HM"))
+    print(schedule.valid_key("EX-CNT"))
 
 
 if __name__ == "__main__":
