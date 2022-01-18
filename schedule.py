@@ -10,12 +10,8 @@ class Schedule:
     def __init__(self):
         self.schedule, self.header = build()
         self.header.remove(const.FIRSTLINE_TEXT)
+        self.width = len(self.header)
         self.length = len(self.schedule)
-        keys = list(self.schedule.keys())
-        key = keys[0]
-        values = self.schedule[key]
-        self.width = len(values)
-        # self.width = len(self.schedule[list(self.schedule.keys())[0]]) --> works but fugly
 
     def valid_key(self, key):
         return key in list(self.schedule.keys())
@@ -41,7 +37,7 @@ def get_page():
     for line in td:
         temp = line.get_text()
         if temp == const.WHITESPACE:
-            temp = const.ZERO
+            temp = const.NEW_WHITESPACE
         data.append(temp)
     return data
 
@@ -49,11 +45,11 @@ def get_page():
 def get_table(data):
     # find the start point in data
     first_line = 0
-    for i in range(0, len(data)):
-        if data[i] == const.FIRSTLINE_TEXT:
+    for i, d in enumerate(data):
+        if d == const.FIRSTLINE_TEXT:
             first_line = i
             break
-    # traverse backwards to find first shipping date
+    # traverse backwards until blank found, forward 1 place to find first shipping date
     first_date = 0
     for first_date in range(first_line, 0, -1):
         if data[first_date] == "":
@@ -63,16 +59,16 @@ def get_table(data):
     num_dates = first_line - first_date
     line_length = num_dates + const.SCHEDULE_WIDTH
     # move shipping dates to proper location
-    for i in range(0, num_dates):
+    for i in range(num_dates):
         data[first_date + line_length + i] = data[first_line - num_dates + i]
     # slice off everything before the start point, calculate number of useful table rows
     data = data[first_line:]
     num_lines = (len(data) // line_length) - 1
     # convert data list to list of lists
     table = []
-    for i in range(0, num_lines):
+    for i in range(num_lines):
         line = []
-        for j in range(0, line_length):
+        for j in range(line_length):
             line.append(data[i + i * (line_length - 1) + j])
         line = line[:1] + line[5:]
         table.append(line)

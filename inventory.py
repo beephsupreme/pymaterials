@@ -6,20 +6,12 @@ import constants as const
 class Inventory:
     def __init__(self):
         self.inventory = build()
+        labels = [const.PN, const.OH, const.OO, const.RO]
+        self.inventory.columns = labels
         self.length = self.inventory.index.stop
-        self.width = 10
-
-    def get_row(self, idx):
-        return self.inventory.iloc[idx]
-
-    def display(self):
-        print("Inventory has {} rows.".format(self.length))
 
 
 def build():
-    return inventory_builder()
-
-
-def inventory_builder():
-    d = pd.read_csv(const.DATAPATH + const.INVENTORY)
-    return d
+    data = pd.read_csv(const.DATAPATH + const.INVENTORY)
+    print("Inventory has {} entries.".format(data.index.stop))
+    return data

@@ -26,16 +26,12 @@ class SalesData:
 
 
 def build(filename):
-    return hold_for_release_builder(filename)
-
-
-def hold_for_release_builder(filename):
     hfr = {}
     h = pd.read_csv(const.DATAPATH + filename)
-    for i in range(0, len(h.index)):
-        key = h.iloc[i][0]
-        value = h.iloc[i][1]
-        factor = h.iloc[i][2]
+    for i in range(h.shape[0]):
+        key = h.loc[i, 'Part Number']
+        value = h.loc[i, 'Qty Ordered']
+        factor = h.loc[i, 'UM_Multiplier']
         if key in hfr:
             hfr[key] = hfr[key] + value * factor
         else:

@@ -8,15 +8,13 @@ import constants as const
 
 def run():
     data = inventory.Inventory()
-    data.display()
     schedule = sch.Schedule()
     schedule.display()
     bl = sales.SalesData(const.BACKLOG)
     bl.display()
     hfr = sales.SalesData(const.HOLD_FOR_RELEASE)
     hfr.display()
-    materials = report.Materials(data, schedule, bl, hfr)
-    materials.save()
+    report.build(data, schedule, bl, hfr)
     print("Finished!")
 
 
