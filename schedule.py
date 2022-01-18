@@ -9,15 +9,13 @@ import constants as const
 class Schedule:
     def __init__(self):
         self.schedule, self.header = build()
-        self.header.remove("TOKISTAR CODE")
+        self.header.remove(const.FIRSTLINE_TEXT)
         self.length = len(self.schedule)
         keys = list(self.schedule.keys())
         key = keys[0]
         values = self.schedule[key]
         self.width = len(values)
-
-    def get_row(self, key):
-        return self.schedule.get(key)
+        # self.width = len(self.schedule[list(self.schedule.keys())[0]]) --> works but fugly
 
     def valid_key(self, key):
         return key in list(self.schedule.keys())
@@ -28,10 +26,6 @@ class Schedule:
 
 
 def build():
-    return schedule_builder()
-
-
-def schedule_builder():
     page = get_page()
     table = get_table(page)
     table = validate_table(table)
@@ -40,16 +34,14 @@ def schedule_builder():
 
 
 def get_page():
-    # get page, parse content, get all <td> elements
     page = requests.get(const.URL)
-    soup = BeautifulSoup(page.content, 'html.parser')
-    td = soup.find_all('td')
-    # get text from td tags, insert "0" in blank fields
+    soup = BeautifulSoup(page.content, const.PARSER)
+    td = soup.find_all(const.ELEM)
     data = []
-    for i in range(0, len(td)):
-        temp = td[i].get_text()
-        if temp == "\u3000":
-            temp = "0"
+    for line in td:
+        temp = line.get_text()
+        if temp == const.WHITESPACE:
+            temp = const.ZERO
         data.append(temp)
     return data
 
