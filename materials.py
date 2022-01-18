@@ -7,7 +7,7 @@ import constants as const
 
 
 def run():
-    data = inventory.Inventory()
+    data = inventory.build()
     schedule = sch.Schedule()
     schedule.display()
     bl = sales.SalesData(const.BACKLOG)

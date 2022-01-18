@@ -7,10 +7,10 @@ def build(data, schedule, bl, hfr):
     header = const.HEADER.split(',')
     header.extend(schedule.header)
     mats = pd.DataFrame(columns=header)
-    mats[const.PN] = data.inventory[const.PN]
-    mats[const.OH] = data.inventory[const.OH]
-    mats[const.OO] = data.inventory[const.OO]
-    mats[const.RO] = data.inventory[const.RO]
+    mats[const.PN] = data[const.PN]
+    mats[const.OH] = data[const.OH]
+    mats[const.OO] = data[const.OO]
+    mats[const.RO] = data[const.RO]
     mats[[const.BL, const.REL, const.HFR, const.TA, const.RA]] = 0
     for i in mats.index:
         key = mats.loc[i, const.PN]
