@@ -24,9 +24,15 @@ class Schedule:
 def build():
     page = get_page()
     table = get_table(page)
+    table.append(['EX-CNT', 20000.0, 0.0, 0.0])
     table = validate_table(table)
     table = translate_table(table)
-    return make_dictionary(table), table[0]
+    test = make_dictionary(table)
+    print("Schedule has {} unique entries.".format(len(table) - 1))
+    print("Shipping dates: {}".format(table[0].remove(const.FIRSTLINE_TEXT)))
+    return test, table[0]
+
+    # return make_dictionary(table), table[0]
 
 
 def get_page():
@@ -92,7 +98,7 @@ def validate_table(table):
     validated = True
     for i in range(1, len(table)):
         current = table[i][0]
-        current = check_specials(current)
+        current = filter_parts(current)
         if current not in parts:
             if current in validate:
                 table[i][0] = validate.get(current)
@@ -105,7 +111,7 @@ def validate_table(table):
     return table
 
 
-def check_specials(current):
+def filter_parts(current):
     if "RV-SEALANT" in current:
         current = "RV-SEALANT"
     elif "Sample" in current:

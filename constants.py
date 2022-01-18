@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 SCHEDULE_URL = "https://www.toki.co.jp/purchasing/TLIHTML.files/sheet001.htm"
+SCHEDULE_HEADER = ""
 DATAPATH = "./data/"
 FIRSTLINE_TEXT = "TOKISTAR CODE"
 SCHEDULE_WIDTH = 5
