@@ -17,8 +17,8 @@ class Schedule:
         return key in list(self.schedule.keys())
 
     def display(self):
-        print("Schedule has {} unique items and {} shipping dates.".format(self.length, self.width))
-        print("Shipping Dates: {}".format(self.header))
+        print("Schedule has {} unique entries.".format(self.length))
+        print("Shipping dates: {}".format(self.header))
 
 
 def build():
@@ -30,9 +30,9 @@ def build():
 
 
 def get_page():
-    page = requests.get(const.URL)
+    page = requests.get(const.SCHEDULE_URL)
     soup = BeautifulSoup(page.content, const.PARSER)
-    td = soup.find_all(const.ELEM)
+    td = soup.find_all(const.ELEMENT)
     data = []
     for line in td:
         temp = line.get_text()
@@ -81,10 +81,10 @@ def get_table(data):
 
 def validate_table(table):
     validate = {}
-    v = pd.read_csv(const.DATAPATH + const.VALIDATE)
+    v = pd.read_csv(const.DATAPATH + const.VALIDATION_DB)
     for i in range(0, len(v.index)):
         validate[v.iloc[i][0]] = v.iloc[i][1]
-    d = pd.read_csv(const.DATAPATH + const.INVENTORY)
+    d = pd.read_csv(const.DATAPATH + const.INVENTORY_AV_EXPORT)
     parts = []
     for i in range(0, len(d.index)):
         parts.append(d.iloc[i][0])
@@ -127,7 +127,7 @@ def check_specials(current):
 
 def translate_table(table):
     translate = {}
-    t = pd.read_csv(const.DATAPATH + const.TRANSLATE)
+    t = pd.read_csv(const.DATAPATH + const.TRANSLATION_DB)
     for i in range(0, len(t.index)):
         translate[t.iloc[i][0]] = t.iloc[i][1]
     for i in range(1, len(table)):

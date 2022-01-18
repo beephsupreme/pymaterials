@@ -3,37 +3,15 @@ import pandas as pd
 import constants as const
 
 
-class SalesData:
-    def __init__(self, filename):
-        self.__name = ""
-        if filename == "bl.txt":
-            self.__name = "Backlog"
-        elif filename == "hfr.txt":
-            self.__name = "HoldForRelease"
-        else:
-            self.__name = filename
-        self.sales = build(filename)
-        self.length = len(self.sales)
-
-    def display(self):
-        print("{} has {} entries.".format(self.__name, self.length))
-
-    def get_val(self, key):
-        return self.sales.get(key)
-
-    def valid_key(self, key):
-        return key in list(self.sales.keys())
-
-
 def build(filename):
-    hfr = {}
-    h = pd.read_csv(const.DATAPATH + filename)
-    for i in range(h.shape[0]):
-        key = h.loc[i, 'Part Number']
-        value = h.loc[i, 'Qty Ordered']
-        factor = h.loc[i, 'UM_Multiplier']
-        if key in hfr:
-            hfr[key] = hfr[key] + value * factor
-        else:
-            hfr[key] = value
-    return hfr
+    df = pd.read_csv(const.DATAPATH + filename)
+    df.columns = [const.PN, const.BL, const.MP]
+    df.loc[:, const.BL] = df.loc[:, const.BL] * df.loc[:, const.MP]
+    df.drop(const.MP, axis=1, inplace=True)
+    df = df.groupby([const.PN]).sum()
+    dictionary = (df.to_dict())['Backlog']
+    if filename == const.HOLD_FOR_RELEASE_AV_EXPORT:
+        print("HFR has {} entries.".format(df.size))
+    else:
+        print("Backlog has {} entries.".format(df.size))
+    return dictionary

@@ -8,13 +8,11 @@ import constants as const
 
 def run():
     data = inventory.build()
+    hfr = sales.build(const.HOLD_FOR_RELEASE_AV_EXPORT)
+    backlog = sales.build(const.BACKLOG_AV_EXPORT)
     schedule = sch.Schedule()
     schedule.display()
-    bl = sales.SalesData(const.BACKLOG)
-    bl.display()
-    hfr = sales.SalesData(const.HOLD_FOR_RELEASE)
-    hfr.display()
-    report.build(data, schedule, bl, hfr)
+    report.build(data, schedule, backlog, hfr)
     print("Finished!")
 
 
