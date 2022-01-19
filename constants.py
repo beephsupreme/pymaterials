@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
 # DATA
-DATAPATH = "./data/"
+DATAFILE_PATH = "./data/"
 INVENTORY_AV_EXPORT = "data.txt"
-BACKLOG_AV_EXPORT = "bl.txt"
-HOLD_FOR_RELEASE_AV_EXPORT = "hfr.txt"
+BACKLOG_EXPORT = "bl.txt"
+HFR_EXPORT = "hfr.txt"
 SCHEDULE_URL = "https://www.toki.co.jp/purchasing/TLIHTML.files/sheet001.htm"
 VALIDATION_DB = "validate.csv"
 TRANSLATION_DB = "translate.csv"
-MATERIALS = "_materials.xlsx"
+OUTFILE = "_materials.xlsx"
 
 # SHIPPING
 SCHEDULE_FIXED_FIELDS = 5
@@ -21,11 +21,11 @@ NEW_WHITESPACE = "0"
 ELEMENT = "td"
 
 # REPORT
-HEADER = "Part Number,On Hand,Backlog,Released,HFR,On Order,T-Avail,R-Avail,Reorder"
+HEADER = ["Part Number", "On Hand", "Backlog", "Released", "HFR", "On Order", "T-Avail", "R-Avail", "Reorder"]
 HEADER_WIDTH = 9
 PARSER = "html.parser"
 ENGINE = "xlsxwriter"
-SHEET = "Sheet1"
+SHEET_NAME = "Sheet1"
 
 # COLUMN NAMES
 PN = "Part Number"

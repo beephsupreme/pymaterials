@@ -1,43 +1,36 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
-import constants as const
+import constants as cn
 
 
 def build(data, schedule, bl, hfr):
     # setup header and report dataframe
-    header = const.HEADER.split(',')
-    header.extend(const.SHIPPING_DATES)
-    materials = pd.DataFrame(columns=header)
-
+    header = cn.HEADER
+    header.extend(cn.SHIPPING_DATES)
+    df = pd.DataFrame(columns=header)
     # populate materials with inventory data
-    materials[const.PN] = data[const.PN]
-    materials[const.OH] = data[const.OH]
-    materials[const.OO] = data[const.OO]
-    materials[const.RO] = data[const.RO]
-
+    df[cn.PN] = data[cn.PN]
+    df[cn.OH] = data[cn.OH]
+    df[cn.OO] = data[cn.OO]
+    df[cn.RO] = data[cn.RO]
     # zero-out remaining columns
-    materials[[const.BL, const.RLS, const.HFR, const.TA, const.RA]] = 0
-    for row in materials.index:
-        key = materials.loc[row, const.PN]
-        if key in hfr and key in bl:
-            materials.loc[row, const.HFR] = hfr[key]
-            materials.loc[row, const.BL] = bl[key]
-            materials.loc[row, const.RLS] = bl[key] - hfr[key]
-
-        # calculate t-avail & r-avail
-        ta = materials.loc[row, const.OH] + materials.loc[row, const.OO] - materials.loc[row, const.BL]
-        materials.loc[row, const.TA] = ta
-        materials.loc[row, const.RA] = materials.loc[row, const.TA] + materials.loc[row, const.HFR]
-
-        # zero-out then fill shipping columns
-        for j in range(const.SHIPPING_WIDTH):
-            materials.iat[row, const.HEADER_WIDTH + j] = 0.0
+    df[[cn.BL, cn.RLS, cn.HFR, cn.TA, cn.RA]] = 0
+    df[cn.SHIPPING_DATES] = 0
+    # loop through df and fill fields according to part number status
+    for row in df.index:
+        key = df.loc[row, cn.PN]
+        if key in bl:
+            df.loc[row, cn.BL] = bl[key]
+        if key in hfr:
+            df.loc[row, cn.HFR] = hfr[key]
+            df.loc[row, cn.RLS] = bl[key] - hfr[key]
         if key in schedule:
-            for j in range(const.SHIPPING_WIDTH):
-                values = schedule[key]
-                materials.iat[row, const.HEADER_WIDTH + j] = values[j]
-
+            for index, date in enumerate(cn.SHIPPING_DATES):
+                df.loc[row, date] = (schedule[key])[index]
+        # calculate t-avail & r-avail
+        df.loc[row, cn.TA] = df.loc[row, cn.OH] + df.loc[row, cn.OO] - df.loc[row, cn.BL]
+        df.loc[row, cn.RA] = df.loc[row, cn.TA] + df.loc[row, cn.HFR]
     # write file to disk
-    writer = pd.ExcelWriter(const.DATAPATH + const.MATERIALS, engine=const.ENGINE)
-    materials.to_excel(writer, sheet_name=const.SHEET, index=False)
+    writer = pd.ExcelWriter(cn.DATAFILE_PATH + cn.OUTFILE, engine=cn.ENGINE)
+    df.to_excel(writer, sheet_name=cn.SHEET_NAME, index=False)
     writer.save()

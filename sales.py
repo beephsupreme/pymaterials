@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
-import constants as const
+import constants as cn
 
 
 def build(filename):
-    df = pd.read_csv(const.DATAPATH + filename)
-    df.columns = [const.PN, const.BL, const.MP]
-    df.loc[:, const.BL] = df.loc[:, const.BL] * df.loc[:, const.MP]
-    df.drop(const.MP, axis=1, inplace=True)
-    df = df.groupby([const.PN]).sum()
-    dictionary = (df.to_dict())['Backlog']
-    if filename == const.HOLD_FOR_RELEASE_AV_EXPORT:
-        print("HFR has {} entries.".format(df.size))
-    else:
-        print("Backlog has {} entries.".format(df.size))
+    df = pd.read_csv(cn.DATAFILE_PATH + filename)
+    df.columns = [cn.PN, cn.BL, cn.MP]
+    df.loc[:, cn.BL] = df.loc[:, cn.BL] * df.loc[:, cn.MP]
+    df.drop(cn.MP, axis=1, inplace=True)
+    df = df.groupby([cn.PN]).sum()
+    dictionary = (df.to_dict())[cn.BL]
+    name = cn.BL if filename == cn.BACKLOG_EXPORT else cn.HFR
+    print("{} has {} entries.".format(name, df.size))
     return dictionary

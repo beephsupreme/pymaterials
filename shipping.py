@@ -3,91 +3,93 @@ import sys
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-import constants as const
+import constants as cn
 
 
-def build():
+def build(parts):
     page = get_page()
     table = get_table(page)
-    table = validate_table(table)
+    table.append(['EX-CNT-VF', 20000.0, 0.0, 0.0])
+    table.append(['EX-CNT-VF', 20000.0, 0.0, 0.0])
+    table.append(['EX-CNT-VF', 20000.0, 0.0, 0.0])
+    table.append(['EX-CNT-VF', 20000.0, 0.0, 0.0])
+    table = validate_table(table, parts)
     table = translate_table(table)
     schedule = make_dictionary(table)
-    const.SCHEDULE_LENGTH = len(table) - 1
-    const.SHIPPING_DATES = (table[0])[1:]
-    const.SHIPPING_WIDTH = len(const.SHIPPING_DATES)
-    print("Schedule has {} unique entries.".format(const.SCHEDULE_LENGTH))
-    print("Shipping dates: {}".format(const.SHIPPING_DATES))
+    cn.SHIPPING_DATES = (table[0])[1:]
+    cn.SHIPPING_WIDTH = len(cn.SHIPPING_DATES)
+    print("Schedule has {} unique entries.".format(cn.SCHEDULE_LENGTH))
+    print("Shipping dates: {}".format(cn.SHIPPING_DATES))
     return schedule
 
     # return make_dictionary(table), table[0]
 
 
 def get_page():
-    page = requests.get(const.SCHEDULE_URL)
-    soup = BeautifulSoup(page.content, const.PARSER)
-    td = soup.find_all(const.ELEMENT)
-    data = []
+    html = requests.get(cn.SCHEDULE_URL)
+    soup = BeautifulSoup(html.content, cn.PARSER)
+    td = soup.find_all(cn.ELEMENT)
+    page = []
     for line in td:
         text = line.get_text()
-        if text == const.WHITESPACE:
-            text = const.NEW_WHITESPACE
-        data.append(text)
-    return data
+        if text == cn.WHITESPACE:
+            text = cn.NEW_WHITESPACE
+        page.append(text)
+    return page
 
 
-def get_table(data):
-    # find the start point in data
+def get_table(page):
+    # find FIRSTLINE_TEXT and remember index
     first_line = 0
-    for first_line, d in enumerate(data):
-        if d == const.FIRSTLINE_TEXT:
+    for first_line, d in enumerate(page):
+        if d == cn.FIRSTLINE_TEXT:
             break
-    # traverse backwards until blank found, forward 1 place to find first shipping date
+    # traverse backwards from FIRSTLINE_TEXT until blank found
+    # then move forward 1 place where the first shipping date and remember the index
     first_date = 0
     for first_date in range(first_line, 0, -1):
-        if data[first_date] == "":
+        if page[first_date] == "":
             first_date += 1
             break
     # calculate number of shipping dates and width of table
-    num_dates = first_line - first_date
-    line_length = num_dates + const.SCHEDULE_FIXED_FIELDS
+    cn.SHIPPING_WIDTH = first_line - first_date
+    line_length = cn.SHIPPING_WIDTH + cn.SCHEDULE_FIXED_FIELDS
     # move shipping dates to proper location
-    for i in range(num_dates):
-        data[first_date + line_length + i] = data[first_line - num_dates + i]
-    # slice off everything before the start point, calculate number of useful table rows
-    data = data[first_line:]
-    num_lines = (len(data) // line_length) - 1
-    # convert data list to list of lists
+    for i in range(cn.SHIPPING_WIDTH):
+        page[first_date + line_length + i] = page[first_line - cn.SHIPPING_WIDTH + i]
+    # slice off everything before FIRSTLINE_TEXT
+    page = page[first_line:]
+    # calculate number of rows in table
+    num_lines = (len(page) // line_length) - 1
+    # convert list into table
     table = []
     for i in range(num_lines):
         line = []
         for j in range(line_length):
-            line.append(data[i + i * (line_length - 1) + j])
-        line = line[:1] + line[const.SCHEDULE_FIXED_FIELDS:]
+            line.append(page[i + i * (line_length - 1) + j])
+        line = line[:1] + line[cn.SCHEDULE_FIXED_FIELDS:]
         table.append(line)
     # convert quantites to float values
     for i in range(1, num_lines):
-        for j in range(1, num_dates + 1):
+        for j in range(1, cn.SHIPPING_WIDTH + 1):
             table[i][j] = float(table[i][j])
     return table
 
 
-def validate_table(table):
+def validate_table(table, parts):
+    # read VALIDATION_DB and load into a dictionary
     validate = {}
-    v = pd.read_csv(const.DATAPATH + const.VALIDATION_DB)
-    for i in range(0, len(v.index)):
-        validate[v.iloc[i][0]] = v.iloc[i][1]
-    d = pd.read_csv(const.DATAPATH + const.INVENTORY_AV_EXPORT)
-    parts = []
-    for i in range(0, len(d.index)):
-        parts.append(d.iloc[i][0])
+    v = pd.read_csv(cn.DATAFILE_PATH + cn.VALIDATION_DB)
+    for row in range(0, len(v.index)):
+        validate[v.iloc[row][0]] = v.iloc[row][1]
     # check schedule parts against inventory parts
     validated = True
-    for i in range(1, len(table)):
-        current = table[i][0]
+    for row in range(1, len(table)):
+        current = table[row][0]
         current = filter_parts(current)
         if current not in parts:
             if current in validate:
-                table[i][0] = validate.get(current)
+                table[row][0] = validate[current]
             else:
                 print("{} not found.".format(current))
                 validated = False
@@ -119,14 +121,14 @@ def filter_parts(current):
 
 def translate_table(table):
     translate = {}
-    t = pd.read_csv(const.DATAPATH + const.TRANSLATION_DB)
-    for i in range(0, len(t.index)):
-        translate[t.iloc[i][0]] = t.iloc[i][1]
-    for i in range(1, len(table)):
-        key = table[i][0]
+    t = pd.read_csv(cn.DATAFILE_PATH + cn.TRANSLATION_DB)
+    for row in range(len(t.index)):
+        translate[t.iloc[row][0]] = t.iloc[row][1]
+    for row in range(1, len(table)):
+        key = table[row][0]
         if key in translate:
-            for j in range(1, len(table[0]) - 1):
-                table[i][j] = table[i][j] * translate[key]
+            for col in range(1, len(table[0]) - 1):
+                table[row][col] = table[row][col] * translate[key]
     return table
 
 
@@ -134,11 +136,11 @@ def make_dictionary(table):
     num_lines = len(table)
     num_dates = len(table[0]) - 1
     schedule = {}
-    for i in range(1, num_lines):
-        key = table[i][0]
+    for row in range(1, num_lines):
+        key = table[row][0]
         values = []
-        for j in range(1, num_dates + 1):
-            values.append(table[i][j])
+        for col in range(1, num_dates + 1):
+            values.append(table[row][col])
         if key in schedule:
             old = schedule[key]
             new = values
@@ -146,4 +148,5 @@ def make_dictionary(table):
             for (o, n) in zip(old, new):
                 values.append(o + n)
         schedule[key] = values
+    cn.SCHEDULE_LENGTH = len(schedule)
     return schedule

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
-import constants as const
+import constants as cn
 
 
 def build():
-    data = pd.read_csv(const.DATAPATH + const.INVENTORY_AV_EXPORT)
-    data.columns = [const.PN, const.OH, const.OO, const.RO]
+    data = pd.read_csv(cn.DATAFILE_PATH + cn.INVENTORY_AV_EXPORT)
+    data.columns = [cn.PN, cn.OH, cn.OO, cn.RO]
     print("Inventory has {} entries.".format(data.index.stop))
     return data

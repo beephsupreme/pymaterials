@@ -3,15 +3,15 @@ import inventory
 import shipping
 import sales
 import report
-import constants as const
+import constants as cn
 
 
 def run():
     print("Loading files ...")
     data = inventory.build()
-    hfr = sales.build(const.HOLD_FOR_RELEASE_AV_EXPORT)
-    backlog = sales.build(const.BACKLOG_AV_EXPORT)
-    schedule = shipping.build()
+    hfr = sales.build(cn.HFR_EXPORT)
+    backlog = sales.build(cn.BACKLOG_EXPORT)
+    schedule = shipping.build(data[cn.PN].tolist())
     report.build(data, schedule, backlog, hfr)
     print("Finished!")
 
