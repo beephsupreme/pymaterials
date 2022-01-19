@@ -11,9 +11,9 @@ TRANSLATION_DB = "translate.csv"
 OUTFILE = "_materials.xlsx"
 
 # SHIPPING
-SCHEDULE_FIXED_FIELDS = 5
 SHIPPING_DATES = []
 SHIPPING_WIDTH = 0
+SCHEDULE_WIDTH = 5
 SCHEDULE_LENGTH = 0
 FIRSTLINE_TEXT = "TOKISTAR CODE"
 WHITESPACE = "\u3000"
@@ -38,3 +38,4 @@ HFR = "HFR"
 TA = "T-Avail"
 RA = "R-Avail"
 MP = "Multiplier"
+VP = "Vendor Part Num"
