@@ -1,23 +1,33 @@
 # -*- coding: utf-8 -*-
-SCHEDULE_URL = "https://www.toki.co.jp/purchasing/TLIHTML.files/sheet001.htm"
-SCHEDULE_HEADER = ""
+
+# DATA
 DATAPATH = "./data/"
+INVENTORY_AV_EXPORT = "data.txt"
+BACKLOG_AV_EXPORT = "bl.txt"
+HOLD_FOR_RELEASE_AV_EXPORT = "hfr.txt"
+SCHEDULE_URL = "https://www.toki.co.jp/purchasing/TLIHTML.files/sheet001.htm"
+VALIDATION_DB = "validate.csv"
+TRANSLATION_DB = "translate.csv"
+MATERIALS = "_materials.xlsx"
+
+# SHIPPING
+SCHEDULE_FIXED_FIELDS = 5
+SHIPPING_DATES = []
+SHIPPING_WIDTH = 0
+SCHEDULE_LENGTH = 0
 FIRSTLINE_TEXT = "TOKISTAR CODE"
-SCHEDULE_WIDTH = 5
+WHITESPACE = "\u3000"
+NEW_WHITESPACE = "0"
+ELEMENT = "td"
+
+# REPORT
 HEADER = "Part Number,On Hand,Backlog,Released,HFR,On Order,T-Avail,R-Avail,Reorder"
 HEADER_WIDTH = 9
-TRANSLATION_DB = "translate.csv"
-VALIDATION_DB = "validate.csv"
-INVENTORY_AV_EXPORT = "data.txt"
-HOLD_FOR_RELEASE_AV_EXPORT = "hfr.txt"
-MATERIALS = "_materials.xlsx"
-BACKLOG_AV_EXPORT = "bl.txt"
 PARSER = "html.parser"
 ENGINE = "xlsxwriter"
 SHEET = "Sheet1"
-ELEMENT = "td"
-WHITESPACE = "\u3000"
-NEW_WHITESPACE = "0"
+
+# COLUMN NAMES
 PN = "Part Number"
 OH = "On Hand"
 OO = "On Order"

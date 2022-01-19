@@ -6,31 +6,18 @@ from bs4 import BeautifulSoup
 import constants as const
 
 
-class Schedule:
-    def __init__(self):
-        self.schedule, self.header = build()
-        self.header.remove(const.FIRSTLINE_TEXT)
-        self.width = len(self.header)
-        self.length = len(self.schedule)
-
-    def valid_key(self, key):
-        return key in list(self.schedule.keys())
-
-    def display(self):
-        print("Schedule has {} unique entries.".format(self.length))
-        print("Shipping dates: {}".format(self.header))
-
-
 def build():
     page = get_page()
     table = get_table(page)
-    table.append(['EX-CNT', 20000.0, 0.0, 0.0])
     table = validate_table(table)
     table = translate_table(table)
-    test = make_dictionary(table)
-    print("Schedule has {} unique entries.".format(len(table) - 1))
-    print("Shipping dates: {}".format(table[0].remove(const.FIRSTLINE_TEXT)))
-    return test, table[0]
+    schedule = make_dictionary(table)
+    const.SCHEDULE_LENGTH = len(table) - 1
+    const.SHIPPING_DATES = (table[0])[1:]
+    const.SHIPPING_WIDTH = len(const.SHIPPING_DATES)
+    print("Schedule has {} unique entries.".format(const.SCHEDULE_LENGTH))
+    print("Shipping dates: {}".format(const.SHIPPING_DATES))
+    return schedule
 
     # return make_dictionary(table), table[0]
 
@@ -41,19 +28,18 @@ def get_page():
     td = soup.find_all(const.ELEMENT)
     data = []
     for line in td:
-        temp = line.get_text()
-        if temp == const.WHITESPACE:
-            temp = const.NEW_WHITESPACE
-        data.append(temp)
+        text = line.get_text()
+        if text == const.WHITESPACE:
+            text = const.NEW_WHITESPACE
+        data.append(text)
     return data
 
 
 def get_table(data):
     # find the start point in data
     first_line = 0
-    for i, d in enumerate(data):
+    for first_line, d in enumerate(data):
         if d == const.FIRSTLINE_TEXT:
-            first_line = i
             break
     # traverse backwards until blank found, forward 1 place to find first shipping date
     first_date = 0
@@ -63,7 +49,7 @@ def get_table(data):
             break
     # calculate number of shipping dates and width of table
     num_dates = first_line - first_date
-    line_length = num_dates + const.SCHEDULE_WIDTH
+    line_length = num_dates + const.SCHEDULE_FIXED_FIELDS
     # move shipping dates to proper location
     for i in range(num_dates):
         data[first_date + line_length + i] = data[first_line - num_dates + i]
@@ -76,7 +62,7 @@ def get_table(data):
         line = []
         for j in range(line_length):
             line.append(data[i + i * (line_length - 1) + j])
-        line = line[:1] + line[5:]
+        line = line[:1] + line[const.SCHEDULE_FIXED_FIELDS:]
         table.append(line)
     # convert quantites to float values
     for i in range(1, num_lines):
@@ -153,5 +139,11 @@ def make_dictionary(table):
         values = []
         for j in range(1, num_dates + 1):
             values.append(table[i][j])
+        if key in schedule:
+            old = schedule[key]
+            new = values
+            values = []
+            for (o, n) in zip(old, new):
+                values.append(o + n)
         schedule[key] = values
     return schedule
