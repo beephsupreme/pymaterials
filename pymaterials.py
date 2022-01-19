@@ -12,7 +12,8 @@ def run():
     hfr = sales.build(cn.HFR_EXPORT)
     backlog = sales.build(cn.BACKLOG_EXPORT)
     schedule = shipping.build(data[cn.PN].tolist())
-    report.build(data, schedule, backlog, hfr)
+    df = report.build(data, schedule, backlog, hfr)
+    print(df)
     print("Finished!")
 
 

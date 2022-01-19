@@ -31,6 +31,7 @@ def build(data, schedule, bl, hfr):
         df.loc[row, cn.TA] = df.loc[row, cn.OH] + df.loc[row, cn.OO] - df.loc[row, cn.BL]
         df.loc[row, cn.RA] = df.loc[row, cn.TA] + df.loc[row, cn.HFR]
     # write file to disk
-    writer = pd.ExcelWriter(cn.DATAFILE_PATH + cn.OUTFILE, engine=cn.ENGINE)
-    df.to_excel(writer, sheet_name=cn.SHEET_NAME, index=False)
-    writer.save()
+    # writer = pd.ExcelWriter(cn.DATAFILE_PATH + cn.OUTFILE, engine=cn.ENGINE)
+    # df.to_excel(writer, sheet_name=cn.SHEET_NAME, index=False)
+    # writer.save()
+    return df
