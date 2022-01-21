@@ -7,7 +7,7 @@ import constants as cn
 
 
 def run():
-    print("Loading files ...")
+    print("Building ...")
     data = inventory.build()
     hfr = sales.build(cn.HFR_EXPORT)
     backlog = sales.build(cn.BACKLOG_EXPORT)

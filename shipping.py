@@ -7,20 +7,23 @@ import constants as cn
 
 
 def build(parts):
-    page = get_page()
-    table = get_table(page)
-    table.append(['EX-CNT-VF', 1.0, 0.0, 0.0])
-    table.append(['EX-CNT-VF', 2.0, 0.0, 0.0])
-    table.append(['EX-CNT-VF', 3.0, 0.0, 0.0])
-    table.append(['EX-CNT-VF', 4.0, 0.0, 0.0])
-    table = validate_table(table, parts)
-    table = translate_table(table)
-    schedule = make_dictionary(table)
-    print("Schedule has {} unique entries.".format(cn.SCHEDULE_LENGTH))
-    print("Shipping dates: {}".format(cn.SHIPPING_DATES))
-    return schedule
+    try:
+        page = get_page()
+        table = get_table(page)
+        table = validate_table(table, parts)
+        table = translate_table(table)
+        schedule = make_dictionary(table)
+        print("Schedule has {} unique entries.".format(cn.SCHEDULE_LENGTH))
+        print("Shipping dates: {}".format(cn.SHIPPING_DATES))
+        return schedule
+    except ValidationException:
+        print("Errors occurred while validating the schedule.")
+        print("Make sure the above parts exist in validate.csv!")
+        sys.exit(1)
 
-    # return make_dictionary(table), table[0]
+
+class ValidationException(Exception):
+    """ Failed validating parts on schedule """
 
 
 def get_page():
@@ -90,8 +93,7 @@ def validate_table(table, parts):
                 print("{} not found.".format(current))
                 validated = False
     if not validated:
-        print("Errors occurred while validating the schedule.")
-        sys.exit(1)
+        raise ValidationException
     return table
 
 

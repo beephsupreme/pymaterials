@@ -30,8 +30,15 @@ def build(data, schedule, bl, hfr):
         # calculate t-avail & r-avail
         df.loc[row, cn.TA] = df.loc[row, cn.OH] + df.loc[row, cn.OO] - df.loc[row, cn.BL]
         df.loc[row, cn.RA] = df.loc[row, cn.TA] + df.loc[row, cn.HFR]
+
+    # convert numeric columns to int
+    int_cols = [cn.OH, cn.BL, cn.RLS, cn.HFR, cn.OO, cn.TA, cn.RA, cn.RO]
+    int_cols.extend(cn.SHIPPING_DATES)
+    for col in int_cols:
+        df[col] = df[col].astype(int)
+
     # write file to disk
-    # writer = pd.ExcelWriter(cn.DATAFILE_PATH + cn.OUTFILE, engine=cn.ENGINE)
-    # df.to_excel(writer, sheet_name=cn.SHEET_NAME, index=False)
-    # writer.save()
+    writer = pd.ExcelWriter(cn.DATAFILE_PATH + cn.OUTFILE, engine=cn.ENGINE)
+    df.to_excel(writer, sheet_name=cn.SHEET_NAME, index=False)
+    writer.save()
     return df
